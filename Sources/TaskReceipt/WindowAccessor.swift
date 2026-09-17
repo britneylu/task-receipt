@@ -79,11 +79,20 @@ struct WindowAccessor: NSViewRepresentable {
         // Figure out how tall the SwiftUI content wants to be
         let fittingSize = contentView.fittingSize
 
+        // Keep the receipt within the usable screen height. The task list
+        // becomes scrollable when its content needs more room than this.
+        let screen = window.screen ?? NSScreen.main
+        let maximumHeight = max(
+            320,
+            (screen?.visibleFrame.height ?? fittingSize.height) - 40
+        )
+        let contentHeight = min(fittingSize.height, maximumHeight)
+
         // Resize only the content
         window.setContentSize(
             NSSize(
                 width: fittingSize.width,
-                height: fittingSize.height
+                height: contentHeight
             )
         )
 

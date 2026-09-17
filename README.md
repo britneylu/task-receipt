@@ -9,6 +9,7 @@ TaskReceipt is a lightweight desktop app for tracking tasks, courses, categories
 ## Features
 
 - Add tasks with a name, course/category, and due date
+- Quickly open the Add Task window with `Command + N`
 - Edit existing tasks
 - Mark tasks as complete
 - Delete tasks
@@ -36,6 +37,8 @@ Each task contains:
 ### Add a Task
 
 Click **+ ADD TASK** at the bottom of the receipt.
+
+You can also press **Command + N** while TaskReceipt is active to open the Add Task window.
 
 Enter the task name, course/category, and due date, then click **ADD TASK**.
 

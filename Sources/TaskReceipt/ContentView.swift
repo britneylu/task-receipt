@@ -1,10 +1,20 @@
 import SwiftUI
+import AppKit
+
+private struct TaskListHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
 
 struct ContentView: View {
     @EnvironmentObject var store: TodoStore
 
     @State private var showingAddTask = false
     @State private var addHover = false
+    @State private var taskListContentHeight: CGFloat = 58
 
     // MARK: - Colors
 
@@ -35,7 +45,31 @@ struct ContentView: View {
 
             divider
 
-            taskList
+            ScrollView {
+                taskList
+                    .padding(.horizontal, 20)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .background {
+                        GeometryReader { geometry in
+                            Color.clear.preference(
+                                key: TaskListHeightKey.self,
+                                value: geometry.size.height
+                            )
+                        }
+                    }
+            }
+            .scrollIndicators(.automatic)
+            .padding(.horizontal, -20)
+            .frame(
+                height: min(
+                    taskListContentHeight,
+                    maximumTaskListHeight
+                )
+            )
+            .onPreferenceChange(TaskListHeightKey.self) { height in
+                guard height > 0 else { return }
+                taskListContentHeight = height
+            }
 
             divider
 
@@ -63,6 +97,14 @@ struct ContentView: View {
             AddTaskView()
                 .environmentObject(store)
         }
+        .focusedSceneValue(\.addTaskAction) {
+            showingAddTask = true
+        }
+    }
+
+    private var maximumTaskListHeight: CGFloat {
+        let screen = NSApp.keyWindow?.screen ?? NSScreen.main
+        return max(120, (screen?.visibleFrame.height ?? 800) - 300)
     }
 
     // MARK: - Header
@@ -149,6 +191,7 @@ struct ContentView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity)
         .padding(.vertical, 6)
     }
 
@@ -229,9 +272,6 @@ struct ContentView: View {
                             design: .monospaced
                         )
                     )
-
-                Text("✦  ✦  ✦")
-                    .font(.system(size: 12))
             }
             .opacity(0.28)
             .padding(.top, 2)
