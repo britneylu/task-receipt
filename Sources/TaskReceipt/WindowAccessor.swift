@@ -1,13 +1,17 @@
 import SwiftUI
 import AppKit
 
+// gives SwiftUI access to settings and sizing on its underlying NSWindow
 struct WindowAccessor: NSViewRepresentable {
 
+    // causes SwiftUI to update this bridge whenever the task count changes
     let taskCount: Int
 
+    // creates an invisible AppKit view that can locate its parent window
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
 
+        // waits until the view has been attached before configuring the window
         DispatchQueue.main.async {
             configure(view.window)
         }
@@ -15,30 +19,34 @@ struct WindowAccessor: NSViewRepresentable {
         return view
     }
 
+    // reconfigures and resizes the window after SwiftUI content changes
     func updateNSView(
         _ nsView: NSView,
         context: Context
     ) {
+        // runs after the current layout pass has produced a fitting size
         DispatchQueue.main.async {
             configure(nsView.window)
             resizeWindow(nsView.window)
         }
     }
 
-    // MARK: - Window Setup
+    // mark: - Window Setup
 
+    // applies the receipt appearance and normal macOS window behavior
     private func configure(_ window: NSWindow?) {
+        // stops until the invisible view belongs to a window
         guard let window else { return }
 
-        // Drag window by clicking its background
+        // drag window by clicking its background
         window.isMovableByWindowBackground = true
 
-        // Title bar appearance
+        // title bar appearance
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.styleMask.insert(.fullSizeContentView)
 
-        // Receipt background
+        // receipt background
         window.backgroundColor = NSColor(
             red: 0.975,
             green: 0.972,
@@ -46,10 +54,11 @@ struct WindowAccessor: NSViewRepresentable {
             alpha: 1.0
         )
 
+        // keeps the window solid and gives it the normal macOS shadow
         window.isOpaque = true
         window.hasShadow = true
 
-        // Normal Mac buttons
+        // normal Mac buttons
         window.standardWindowButton(.closeButton)?
             .isHidden = false
 
@@ -60,9 +69,11 @@ struct WindowAccessor: NSViewRepresentable {
             .isHidden = false
     }
 
-    // MARK: - Auto Resize
+    // mark: - Auto Resize
 
+    // fits the window to its content without letting it exceed the screen
     private func resizeWindow(_ window: NSWindow?) {
+        // resizing needs both a window and its root content view
         guard
             let window,
             let contentView = window.contentView
@@ -70,25 +81,27 @@ struct WindowAccessor: NSViewRepresentable {
             return
         }
 
-        // Save exactly where the top-left corner currently is
+        // save exactly where the top-left corner currently is
         let topLeft = NSPoint(
             x: window.frame.minX,
             y: window.frame.maxY
         )
 
-        // Figure out how tall the SwiftUI content wants to be
+        // figure out how tall the SwiftUI content wants to be
         let fittingSize = contentView.fittingSize
 
-        // Keep the receipt within the usable screen height. The task list
-        // becomes scrollable when its content needs more room than this.
+        // keep the receipt within the usable screen height. The task list
+        // becomes scrollable when its content needs more room than this
+        // uses the window's current display, falling back to the main display
         let screen = window.screen ?? NSScreen.main
         let maximumHeight = max(
             320,
             (screen?.visibleFrame.height ?? fittingSize.height) - 40
         )
+        // chooses the content height unless it is taller than the screen limit
         let contentHeight = min(fittingSize.height, maximumHeight)
 
-        // Resize only the content
+        // resize only the content
         window.setContentSize(
             NSSize(
                 width: fittingSize.width,
@@ -96,7 +109,7 @@ struct WindowAccessor: NSViewRepresentable {
             )
         )
 
-        // Put the window back at the exact same top-left position
+        // put the window back at the exact same top-left position
         window.setFrameTopLeftPoint(topLeft)
     }
 }

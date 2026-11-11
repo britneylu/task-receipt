@@ -1,8 +1,8 @@
-# TaskReceipt
+# Task Receipt
 
 A minimal macOS task manager that turns your to-do list into a receipt.
 
-TaskReceipt is a lightweight desktop app for tracking tasks, courses, categories, and due dates in a simple receipt-inspired interface.
+Task Receipt is a lightweight desktop app for tracking tasks, courses, categories, and due dates in a simple receipt-inspired interface.
 
 > **Currently available for macOS**
 
@@ -12,6 +12,11 @@ TaskReceipt is a lightweight desktop app for tracking tasks, courses, categories
 - Quickly open the Add Task window with `Command + N`
 - Edit existing tasks
 - Mark tasks as complete
+- Automatically move completed tasks into a History interface
+- Sync completed history with Firebase Cloud Firestore
+- Sign in with Google or an email and password
+- Use a temporary guest session without saving history
+- Restore a completed task back to the active receipt
 - Delete tasks
 - Automatically sort and display tasks
 - Identify overdue tasks
@@ -23,10 +28,10 @@ TaskReceipt is a lightweight desktop app for tracking tasks, courses, categories
 ## Preview
 
 <p>
-  <img src="taskreceipt.png" alt="TaskReceipt Screenshot" width="350">
+  <img src="taskreceipt.png" alt="Task Receipt Screenshot" width="350">
 </p>
 
-## Using TaskReceipt
+## Using Task Receipt
 
 Each task contains:
 
@@ -38,13 +43,21 @@ Each task contains:
 
 Click **+ ADD TASK** at the bottom of the receipt.
 
-You can also press **Command + N** while TaskReceipt is active to open the Add Task window.
+You can also press **Command + N** while Task Receipt is active to open the Add Task window.
 
 Enter the task name, course/category, and due date, then click **ADD TASK**.
 
 ### Complete a Task
 
-Click the checkbox next to a task to mark it as complete.
+Click the checkbox next to a task to mark it as complete. The task leaves the active receipt and moves into **History** with its completion date.
+
+### View Task History
+
+Click **HISTORY** at the bottom of the receipt to see completed tasks.
+
+From History, click the restore arrow to return a task to the active receipt or click the trash icon to permanently delete it.
+
+History is saved to Firebase when you use a Google or email account. Guest history lasts only for the current app session and is deleted when Task Receipt closes.
 
 ### Edit a Task
 
@@ -64,9 +77,9 @@ You can also right-click a task and select **Delete Task**.
 
 ## Installation
 
-TaskReceipt is currently distributed as a macOS Swift application.
+Task Receipt is currently distributed as a macOS Swift application.
 
-> **Note:** TaskReceipt is not currently signed and notarized through the Apple Developer Program. Because of this, macOS may block a prebuilt version downloaded from the internet. The recommended installation method is to build the app locally using the included build script.
+> **Note:** Task Receipt is not currently signed and notarized through the Apple Developer Program. Because of this, macOS may block a prebuilt version downloaded from the internet. The recommended installation method is to build the app locally using the included build script.
 
 ### Requirements
 
@@ -93,7 +106,7 @@ You can verify that Swift is available by running:
 swift --version
 ```
 
-### 2. Download TaskReceipt
+### 2. Download Task Receipt
 
 Clone the repository:
 
@@ -123,19 +136,19 @@ Then run:
 
 The script will automatically:
 
-1. Build TaskReceipt
+1. Build Task Receipt
 2. Create the macOS application
-3. Install `TaskReceipt.app` into your Applications folder
-4. Launch TaskReceipt
+3. Install `Task Receipt.app` into your Applications folder
+4. Launch Task Receipt
 
-### 4. Open TaskReceipt
+### 4. Open Task Receipt
 
-After the initial installation, you can open TaskReceipt like a normal Mac application.
+After the initial installation, you can open Task Receipt like a normal Mac application.
 
 You can find it in:
 
 - **Applications**
-- **Spotlight** — press `Command + Space` and search for `TaskReceipt`
+- **Spotlight** — press `Command + Space` and search for `Task Receipt`
 - **Launchpad**
 - Your **Dock**, if you choose to add it
 
@@ -143,9 +156,9 @@ You do not need to use Terminal every time you want to open the app.
 
 ---
 
-## Updating TaskReceipt
+## Updating Task Receipt
 
-If you installed TaskReceipt using the instructions above, open Terminal and navigate to the repository:
+If you installed Task Receipt using the instructions above, open Terminal and navigate to the repository:
 
 ```bash
 cd Receipt-Todo
@@ -169,7 +182,7 @@ The newly built version will replace the previous version in your Applications f
 
 ## Running Without Installing
 
-If you only want to test TaskReceipt without installing the `.app`, you can run it directly from the project directory:
+If you only want to test Task Receipt without installing the `.app`, you can run it directly from the project directory:
 
 ```bash
 swift run
@@ -179,12 +192,38 @@ swift run
 
 ## Development
 
-TaskReceipt is built with:
+Task Receipt is built with:
 
 - **Swift**
 - **SwiftUI**
 - **AppKit**
 - **Swift Package Manager**
+- **Firebase Authentication**
+- **Firebase Cloud Firestore**
+
+### Firebase Setup
+
+Task Receipt works with guest history before Firebase is configured. To enable account history:
+
+1. Create a project in the [Firebase console](https://console.firebase.google.com/).
+2. Add an Apple app using the bundle ID `com.britney.taskreceipt`.
+3. Download `GoogleService-Info.plist` and place it in the repository root beside `Package.swift`.
+4. In **Authentication → Sign-in method**, enable both **Email/Password** and **Google**.
+5. After enabling Google, download a fresh `GoogleService-Info.plist` so it includes the Google client and reversed client IDs.
+6. Create a **Cloud Firestore** database.
+7. Open **Firestore Database → Rules**, copy everything from [`firestore.rules`](firestore.rules), paste it into the editor, and click **Publish**. These rules allow signed-in users to access only their own history.
+
+   You can alternatively deploy the same file with the Firebase CLI after running `firebase login` and `firebase use --add`:
+
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+
+8. Rebuild and install with `./build-app.sh`. The installer adds the Google callback URL scheme from `GoogleService-Info.plist`.
+
+The History footer shows **FIREBASE SYNCED** after authentication and Firestore connect successfully. Signing into the same account on another Mac loads the same completed-task history.
+
+Google Sign-In on macOS requires the app to be signed with an Apple-issued certificate for persistent Keychain credential storage. Email/password login and guest mode remain available while developing an unsigned build.
 
 The main application source code is located in:
 
@@ -213,10 +252,14 @@ TaskReceipt/
 │       ├── TaskReceiptApp.swift
 │       ├── ContentView.swift
 │       ├── TaskRow.swift
+│       ├── HistoryView.swift
+│       ├── LoginView.swift
+│       ├── AccountView.swift
 │       ├── AddTaskView.swift
 │       ├── EditTaskView.swift
 │       ├── TodoItem.swift
 │       ├── TodoStore.swift
+│       ├── FirebaseHistoryService.swift
 │       ├── AppDelegate.swift
 │       └── WindowAccessor.swift
 │
@@ -225,13 +268,15 @@ TaskReceipt/
 ├── ReceiptIcon.png
 ├── taskreceipt.png
 ├── Package.swift
+├── firebase.json
+├── firestore.rules
 ├── build-app.sh
 ├── LICENSE
 └── README.md
 ```
 
-## Why TaskReceipt?
+## Why Task Receipt?
 
-TaskReceipt started as a small project to experiment with building a native macOS application using SwiftUI.
+Task Receipt started as a small project to experiment with building a native macOS application using SwiftUI.
 
 The goal was to create a to-do list that feels less like a traditional productivity app and more like a small object that can live on your desktop. The receipt-inspired interface provides a simple way to see what still needs to be completed without unnecessary features or clutter.

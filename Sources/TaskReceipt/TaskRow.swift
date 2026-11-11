@@ -1,46 +1,51 @@
 import SwiftUI
 
+// displays one task and all actions that can be performed on it
 struct TaskRow: View {
+    // gives the row access to task update and deletion methods
     @EnvironmentObject var store: TodoStore
 
+    // holds the task whose information this row displays
     let task: TodoItem
 
+    // tracks whether to show hover controls and the edit sheet
     @State private var isHovering = false
     @State private var showingEditTask = false
 
+    // uses a receipt-like ink color for the row content
     private let ink = Color(
         red: 0.12,
         green: 0.11,
         blue: 0.09
     )
 
+    // arranges the checkbox, task details, date, and delete control
     var body: some View {
+        // places all task information on one horizontal row
         HStack(
             alignment: .top,
             spacing: 10
         ) {
 
-            // Checkbox
+            // toggles the task's completion state when clicked
             Button {
                 store.toggleTask(task)
             } label: {
                 Image(
-                    systemName:
-                        task.isCompleted
-                        ? "checkmark.square.fill"
-                        : "square"
+                    systemName: "square"
                 )
                 .font(.system(size: 15))
                 .foregroundStyle(ink)
             }
             .buttonStyle(.plain)
 
-            // Task title + category
+            // places the task title above its category
             VStack(
                 alignment: .leading,
                 spacing: 4
             ) {
 
+                // strikes through the title after the task is completed
                 Text(task.title)
                     .font(
                         .system(
@@ -50,8 +55,8 @@ struct TaskRow: View {
                         )
                     )
                     .foregroundStyle(ink)
-                    .strikethrough(task.isCompleted)
 
+                // displays the category in smaller uppercase text
                 Text(task.category.uppercased())
                     .font(
                         .system(
@@ -65,14 +70,16 @@ struct TaskRow: View {
                     )
             }
 
+            // pushes the due date to the row's trailing edge
             Spacer()
 
-            // Due date
+            // places the due date above an optional overdue warning
             VStack(
                 alignment: .trailing,
                 spacing: 4
             ) {
 
+                // formats the date as an abbreviated month and day
                 Text(
                     task.dueDate.formatted(
                         .dateTime
@@ -90,7 +97,8 @@ struct TaskRow: View {
                 )
                 .foregroundStyle(ink)
 
-                if isOverdue && !task.isCompleted {
+                // warns about overdue tasks until they are completed
+                if isOverdue {
                     Text("OVERDUE")
                         .font(
                             .system(
@@ -105,7 +113,7 @@ struct TaskRow: View {
                 }
             }
 
-            // Delete button only appears on hover
+            // shows a compact delete button only while hovering over the row
             if isHovering {
                 Button {
                     store.deleteTask(task)
@@ -127,27 +135,20 @@ struct TaskRow: View {
         }
         .padding(.vertical, 11)
 
-        // Makes the full row clickable
+        // makes the full row clickable
         .contentShape(Rectangle())
 
-        // Hover effect
+        // remembers whether the pointer is currently over this row
         .onHover { hovering in
             isHovering = hovering
         }
 
-        // Click anywhere on the row to edit
+        // click anywhere on the row to edit
         .onTapGesture {
             showingEditTask = true
         }
 
-        // Fade completed tasks
-        .opacity(
-            task.isCompleted
-                ? 0.4
-                : 1
-        )
-
-        // Edit sheet
+        // presents the edit form for this task
         .sheet(
             isPresented: $showingEditTask
         ) {
@@ -155,25 +156,26 @@ struct TaskRow: View {
                 .environmentObject(store)
         }
 
-        // Right-click menu
+        // offers edit, completion, and deletion actions on right-click
         .contextMenu {
 
+            // opens the same edit sheet as a normal row click
             Button("Edit Task") {
                 showingEditTask = true
             }
 
             Divider()
 
+            // changes its label and action based on completion state
             Button(
-                task.isCompleted
-                    ? "Mark Incomplete"
-                    : "Mark Complete"
+                "Mark Complete"
             ) {
                 store.toggleTask(task)
             }
 
             Divider()
 
+            // permanently removes this task from the store
             Button(
                 "Delete Task",
                 role: .destructive
@@ -183,8 +185,9 @@ struct TaskRow: View {
         }
     }
 
-    // MARK: - Overdue
+    // mark: - Overdue
 
+    // compares calendar days to avoid treating earlier times today as overdue
     private var isOverdue: Bool {
         Calendar.current.startOfDay(
             for: task.dueDate

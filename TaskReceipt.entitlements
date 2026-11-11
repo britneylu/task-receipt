@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- identifies this app to apple's signing and provisioning system -->
+    <key>com.apple.application-identifier</key>
+    <string>B3PALMT8DQ.com.britney.taskreceipt</string>
+
+    <!-- identifies the personal development team that signs this app -->
+    <key>com.apple.developer.team-identifier</key>
+    <string>B3PALMT8DQ</string>
+
+    <!-- lets firebase and google sign-in store credentials in this app's keychain group -->
+    <key>keychain-access-groups</key>
+    <array>
+        <string>B3PALMT8DQ.com.britney.taskreceipt</string>
+    </array>
+</dict>
+</plist>
