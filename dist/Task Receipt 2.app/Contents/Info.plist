@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Task Receipt</string>
+	<key>CFBundleExecutable</key>
+	<string>TaskReceipt</string>
+	<key>CFBundleIconFile</key>
+	<string>ReceiptIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.britney.taskreceipt</string>
+	<key>CFBundleName</key>
+	<string>Task Receipt</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.431631628093-gpjoch4s52girn7qguvh2phn73b4uodk</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+</dict>
+</plist>
