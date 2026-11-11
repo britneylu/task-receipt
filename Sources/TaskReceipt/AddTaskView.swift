@@ -6,6 +6,9 @@ struct AddTaskView: View {
     // gives this form access to the shared list of tasks
     @EnvironmentObject var store: TodoStore
 
+    // keeps the sheet exactly as tall as the main receipt that opened it
+    let receiptHeight: CGFloat
+
     // closes the sheet after the user cancels or adds a task
     @Environment(\.dismiss)
     private var dismiss
@@ -109,7 +112,7 @@ struct AddTaskView: View {
         }
         // gives the sheet consistent spacing, width, and typography
         .padding(28)
-        .frame(width: 360)
+        .frame(width: 320, height: receiptHeight)
         .fontDesign(.monospaced)
     }
 

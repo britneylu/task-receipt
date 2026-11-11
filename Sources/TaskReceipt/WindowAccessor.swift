@@ -81,11 +81,9 @@ struct WindowAccessor: NSViewRepresentable {
             return
         }
 
-        // save exactly where the top-left corner currently is
-        let topLeft = NSPoint(
-            x: window.frame.minX,
-            y: window.frame.maxY
-        )
+        // saves the current edges before calculating the replacement frame
+        let leftEdge = window.frame.minX
+        let topEdge = window.frame.maxY
 
         // figure out how tall the SwiftUI content wants to be
         let fittingSize = contentView.fittingSize
@@ -101,15 +99,23 @@ struct WindowAccessor: NSViewRepresentable {
         // chooses the content height unless it is taller than the screen limit
         let contentHeight = min(fittingSize.height, maximumHeight)
 
-        // resize only the content
-        window.setContentSize(
-            NSSize(
-                width: fittingSize.width,
+        // keeps the receipt width fixed while allowing only its height to change
+        let contentRect = NSRect(
+            origin: .zero,
+            size: NSSize(
+                width: 320,
                 height: contentHeight
             )
         )
+        let frameSize = window.frameRect(forContentRect: contentRect).size
 
-        // put the window back at the exact same top-left position
-        window.setFrameTopLeftPoint(topLeft)
+        // changes size and position together so macos cannot shift it between updates
+        let anchoredFrame = NSRect(
+            x: leftEdge,
+            y: topEdge - frameSize.height,
+            width: frameSize.width,
+            height: frameSize.height
+        )
+        window.setFrame(anchoredFrame, display: true, animate: false)
     }
 }

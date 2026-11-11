@@ -8,6 +8,9 @@ struct AccountView: View {
     // closes the account sheet after an action
     @Environment(\.dismiss) private var dismiss
 
+    // tracks whether the pointer is over the account action
+    @State private var accountActionHover = false
+
     // matches the receipt colors used throughout the app
     private let paper = Color(red: 0.975, green: 0.972, blue: 0.955)
     private let ink = Color(red: 0.11, green: 0.11, blue: 0.10)
@@ -34,8 +37,24 @@ struct AccountView: View {
             Button(accountActionTitle) {
                 performAccountAction()
             }
-            .buttonStyle(.borderedProminent)
-            .tint(ink)
+            .buttonStyle(.plain)
+            .font(.system(size: 10, weight: .bold, design: .monospaced))
+            .foregroundStyle(ink.opacity(0.78))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(accountActionHover ? ink.opacity(0.07) : Color.clear)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                    .stroke(ink.opacity(0.2), lineWidth: 1)
+            )
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    accountActionHover = hovering
+                }
+            }
 
             Button("DONE") {
                 dismiss()

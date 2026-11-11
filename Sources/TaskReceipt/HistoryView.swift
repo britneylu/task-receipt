@@ -5,6 +5,9 @@ struct HistoryView: View {
     // reads completed tasks and history actions from the shared store
     @EnvironmentObject var store: TodoStore
 
+    // keeps the sheet exactly as tall as the main receipt that opened it
+    let receiptHeight: CGFloat
+
     // closes the history sheet
     @Environment(\.dismiss) private var dismiss
 
@@ -46,7 +49,7 @@ struct HistoryView: View {
 
             footer
         }
-        .frame(width: 420, height: 520)
+        .frame(width: 320, height: receiptHeight)
         .background(paper)
         .foregroundStyle(ink)
         .fontDesign(.monospaced)

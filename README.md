@@ -28,7 +28,7 @@ Task Receipt is a lightweight desktop app for tracking tasks, courses, categorie
 ## Preview
 
 <p>
-  <img src="taskreceipt.png" alt="Task Receipt Screenshot" width="350">
+  <img src="img/main-interface.png" alt="Task Receipt Screenshot" width="350">
 </p>
 
 ## Using Task Receipt

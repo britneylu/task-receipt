@@ -25,6 +25,8 @@ struct ContentView: View {
     @State private var historyHover = false
     @State private var accountHover = false
     @State private var taskListContentHeight: CGFloat = 58
+    @State private var addTaskHeight: CGFloat = 400
+    @State private var historyHeight: CGFloat = 400
 
     // mark: - Colors
 
@@ -123,12 +125,12 @@ struct ContentView: View {
         )
         // presents the form when the user asks to add a task
         .sheet(isPresented: $showingAddTask) {
-            AddTaskView()
+            AddTaskView(receiptHeight: addTaskHeight)
                 .environmentObject(store)
         }
         // presents completed tasks in a separate history interface
         .sheet(isPresented: $showingHistory) {
-            HistoryView()
+            HistoryView(receiptHeight: historyHeight)
                 .environmentObject(store)
         }
         // presents account details from the header icon
@@ -143,7 +145,7 @@ struct ContentView: View {
         }
         // gives the focused window's Command-N menu item an action to run
         .focusedSceneValue(\.addTaskAction) {
-            showingAddTask = true
+            openAddTask()
         }
     }
 
@@ -209,6 +211,8 @@ struct ContentView: View {
             // places history and account actions together in the top corner
             HStack(spacing: 3) {
                 Button {
+                    // matches history to the main receipt's current content height
+                    historyHeight = NSApp.keyWindow?.contentView?.bounds.height ?? 400
                     showingHistory = true
                 } label: {
                     Image(systemName: "clock.arrow.circlepath")
@@ -330,7 +334,7 @@ struct ContentView: View {
 
             // opens the Add Task sheet when clicked
             Button {
-                showingAddTask = true
+                openAddTask()
             } label: {
 
                 // combines the plus icon and button title
@@ -392,6 +396,12 @@ struct ContentView: View {
             .padding(.top, 2)
         }
         .padding(.top, 12)
+    }
+
+    // opens the form with the same height as the current main receipt
+    private func openAddTask() {
+        addTaskHeight = NSApp.keyWindow?.contentView?.bounds.height ?? 400
+        showingAddTask = true
     }
 
     // draws the account hover color only while the pointer is over it

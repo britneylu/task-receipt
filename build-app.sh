@@ -6,10 +6,12 @@ set -e
 # names the app and all folders used while packaging it
 APP_NAME="TaskReceipt"
 DISPLAY_NAME="Task Receipt"
-BUILD_DIR=".build/release"
+SWIFT_BUILD_DIR="/tmp/taskreceipt-swift-build"
+BUILD_DIR="$SWIFT_BUILD_DIR/release"
 DIST_APP="dist/$DISPLAY_NAME.app"
 PACKAGE_DIR=$(mktemp -d "/tmp/taskreceipt-build.XXXXXX")
 PACKAGE_APP="$PACKAGE_DIR/$DISPLAY_NAME.app"
+SOURCE_STAGING_DIR="$PACKAGE_DIR/source"
 CONTENTS_DIR="$PACKAGE_APP/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
@@ -25,7 +27,19 @@ trap 'rm -rf "$PACKAGE_DIR"' EXIT
 # builds an optimized release version of the Swift executable
 echo "Building $DISPLAY_NAME..."
 
-swift build -c release --build-system native
+# snapshots package sources outside desktop file provider before compiling
+mkdir -p "$SOURCE_STAGING_DIR"
+cp "Package.swift" "$SOURCE_STAGING_DIR/Package.swift"
+if [ -f "Package.resolved" ]; then
+    cp "Package.resolved" "$SOURCE_STAGING_DIR/Package.resolved"
+fi
+ditto --norsrc --noextattr "Sources" "$SOURCE_STAGING_DIR/Sources"
+
+swift build \
+    -c release \
+    --build-system native \
+    --package-path "$SOURCE_STAGING_DIR" \
+    --scratch-path "$SWIFT_BUILD_DIR"
 
 # creates a fresh macOS .app folder structure
 echo "Creating app bundle..."
