@@ -13,14 +13,18 @@ struct EditTaskView: View {
     // keeps the original task so its unique ID can be updated
     let task: TodoItem
 
+    // uses the main receipt height without letting the form become too tall
+    let receiptHeight: CGFloat
+
     // holds editable copies of the task values
     @State private var title: String
     @State private var category: String
     @State private var dueDate: Date
 
     // fills the form with the task's current values
-    init(task: TodoItem) {
+    init(task: TodoItem, receiptHeight: CGFloat) {
         self.task = task
+        self.receiptHeight = receiptHeight
 
         _title = State(initialValue: task.title)
         _category = State(initialValue: task.category)
@@ -103,6 +107,8 @@ struct EditTaskView: View {
                 Button("CANCEL") {
                     dismiss()
                 }
+                // keeps the label readable against the dark edit sheet
+                .foregroundStyle(Color.white.opacity(0.85))
 
                 Spacer()
 
@@ -122,7 +128,10 @@ struct EditTaskView: View {
         }
         // gives the sheet consistent spacing, width, and typography
         .padding(28)
-        .frame(width: 360)
+        .frame(
+            width: 320,
+            height: min(receiptHeight, 380)
+        )
         .fontDesign(.monospaced)
 
         // make this sheet consistently use dark-mode controls/colors

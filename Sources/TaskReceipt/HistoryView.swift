@@ -184,7 +184,7 @@ private struct HistoryRow: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 5) {
-                Text(completedDate)
+                Text(dueDateText)
                     .font(.system(size: 9, weight: .semibold, design: .monospaced))
 
                 Text("COMPLETED")
@@ -211,9 +211,9 @@ private struct HistoryRow: View {
         .padding(.vertical, 14)
     }
 
-    // formats the completion timestamp for the history receipt
-    private var completedDate: String {
-        (task.completedAt ?? task.dueDate)
+    // formats the task's original due date for the history receipt
+    private var dueDateText: String {
+        task.dueDate
             .formatted(.dateTime.month(.abbreviated).day().year())
             .uppercased()
     }

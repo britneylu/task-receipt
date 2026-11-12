@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 // displays one task and all actions that can be performed on it
 struct TaskRow: View {
@@ -11,6 +12,7 @@ struct TaskRow: View {
     // tracks whether to show hover controls and the edit sheet
     @State private var isHovering = false
     @State private var showingEditTask = false
+    @State private var editTaskHeight: CGFloat = 400
 
     // uses a receipt-like ink color for the row content
     private let ink = Color(
@@ -145,14 +147,17 @@ struct TaskRow: View {
 
         // click anywhere on the row to edit
         .onTapGesture {
-            showingEditTask = true
+            openEditTask()
         }
 
         // presents the edit form for this task
         .sheet(
             isPresented: $showingEditTask
         ) {
-            EditTaskView(task: task)
+            EditTaskView(
+                task: task,
+                receiptHeight: editTaskHeight
+            )
                 .environmentObject(store)
         }
 
@@ -161,7 +166,7 @@ struct TaskRow: View {
 
             // opens the same edit sheet as a normal row click
             Button("Edit Task") {
-                showingEditTask = true
+                openEditTask()
             }
 
             Divider()
@@ -183,6 +188,12 @@ struct TaskRow: View {
                 store.deleteTask(task)
             }
         }
+    }
+
+    // opens the edit form with the same compact size as the add form
+    private func openEditTask() {
+        editTaskHeight = NSApp.keyWindow?.contentView?.bounds.height ?? 400
+        showingEditTask = true
     }
 
     // mark: - Overdue

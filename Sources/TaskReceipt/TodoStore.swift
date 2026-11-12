@@ -58,10 +58,15 @@ final class TodoStore: ObservableObject {
         tasks.sorted { $0.dueDate < $1.dueDate }
     }
 
-    // returns completed tasks with the newest completion first
+    // returns completed tasks with the most recent due date first
     var sortedHistory: [TodoItem] {
         history.sorted {
-            ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast)
+            if $0.dueDate != $1.dueDate {
+                return $0.dueDate > $1.dueDate
+            }
+
+            // keeps tasks with the same due date in newest completion order
+            return ($0.completedAt ?? .distantPast) > ($1.completedAt ?? .distantPast)
         }
     }
 
